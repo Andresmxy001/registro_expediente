@@ -1,0 +1,1044 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Sistema de Registro Educativo - Versión Avanzada</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        /* Formulario */
+        .form-section {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .form-title {
+            font-size: 1.5em;
+            margin-bottom: 20px;
+            color: #333;
+            border-left: 4px solid #667eea;
+            padding-left: 15px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .form-group label .required {
+            color: #f56565;
+            margin-left: 5px;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102,126,234,0.1);
+        }
+
+        .form-group input.error {
+            border-color: #f56565;
+        }
+
+        .error-message {
+            color: #f56565;
+            font-size: 12px;
+            margin-top: 5px;
+            display: none;
+        }
+
+        .email-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        .email-group input {
+            flex: 1;
+        }
+
+        .email-group select {
+            width: 150px;
+        }
+
+        /* Botones */
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 10px;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102,126,234,0.4);
+        }
+
+        .btn-secondary {
+            background: #48bb78;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin: 5px;
+        }
+
+        .btn-secondary:hover {
+            background: #38a169;
+            transform: translateY(-2px);
+        }
+
+        .btn-danger {
+            background: #f56565;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 12px;
+        }
+
+        .btn-danger:hover {
+            background: #e53e3e;
+        }
+
+        .btn-warning {
+            background: #ed8936;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 12px;
+        }
+
+        .btn-warning:hover {
+            background: #dd6b20;
+        }
+
+        .btn-info {
+            background: #4299e1;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 12px;
+        }
+
+        .btn-info:hover {
+            background: #3182ce;
+        }
+
+        /* Acciones superiores */
+        .actions-bar {
+            display: flex;
+            gap: 15px;
+            justify-content: flex-end;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .action-btn {
+            background: white;
+            border: 2px solid #e2e8f0;
+            padding: 10px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .action-btn:hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
+        }
+
+        /* Tabla */
+        .table-section {
+            background: white;
+            border-radius: 15px;
+            overflow-x: auto;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+        }
+
+        td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        tr:hover {
+            background: #f7fafc;
+        }
+
+        .actions-cell {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(5px);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        /* Notificaciones */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 2000;
+            animation: slideIn 0.3s ease;
+            border-left: 4px solid;
+            max-width: 400px;
+        }
+
+        .notification-duplicate {
+            background: #fff5f5;
+            border-left-color: #f56565;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        /* Filtros */
+        .filter-section {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .filter-section select {
+            padding: 8px 15px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+        }
+
+        @media (max-width: 768px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            .email-group {
+                flex-direction: column;
+            }
+            .email-group select {
+                width: 100%;
+            }
+            .actions-bar {
+                justify-content: center;
+            }
+            .notification {
+                max-width: 90%;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-graduation-cap"></i> Sistema de Registro Educativo</h1>
+            <p>Registro de estudiantes por niveles y áreas curriculares</p>
+        </div>
+
+        <div class="content">
+            <!-- Botones de exportación -->
+            <div class="actions-bar">
+                <button class="action-btn" onclick="exportToExcel()">
+                    <i class="fas fa-file-excel" style="color: #10b981;"></i> Exportar Excel
+                </button>
+                <button class="action-btn" onclick="exportToPDF()">
+                    <i class="fas fa-file-pdf" style="color: #f56565;"></i> Exportar PDF
+                </button>
+                <button class="action-btn" onclick="printTable()">
+                    <i class="fas fa-print" style="color: #667eea;"></i> Imprimir
+                </button>
+            </div>
+
+            <!-- Formulario de registro -->
+            <div class="form-section">
+                <h2 class="form-title"><i class="fas fa-user-plus"></i> Registrar Nuevo Estudiante</h2>
+                <form id="registrationForm">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Nombres <span class="required">*</span></label>
+                            <input type="text" id="nombres" placeholder="Ingrese nombres" required>
+                            <div class="error-message" id="errorNombres">Solo letras permitidas</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Apellidos <span class="required">*</span></label>
+                            <input type="text" id="apellidos" placeholder="Ingrese apellidos" required>
+                            <div class="error-message" id="errorApellidos">Solo letras permitidas</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>DNI <span class="required">*</span></label>
+                            <input type="text" id="dni" placeholder="8 dígitos numéricos" maxlength="8" required>
+                            <div class="error-message" id="errorDni">Debe tener 8 dígitos numéricos</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Número de Expediente</label>
+                            <input type="text" id="expediente" placeholder="Número de expediente">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Teléfono/Celular</label>
+                            <input type="text" id="telefono" placeholder="9 dígitos numéricos" maxlength="9">
+                            <div class="error-message" id="errorTelefono">Debe tener 9 dígitos numéricos</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Correo Electrónico</label>
+                            <div class="email-group">
+                                <input type="text" id="correoUser" placeholder="usuario">
+                                <select id="correoDominio">
+                                    <option value="@gmail.com">@gmail.com</option>
+                                    <option value="@hotmail.com">@hotmail.com</option>
+                                    <option value="@outlook.com">@outlook.com</option>
+                                </select>
+                            </div>
+                            <div class="error-message" id="errorCorreo">Correo inválido</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Nivel Educativo <span class="required">*</span></label>
+                            <select id="nivel" required>
+                                <option value="">Seleccione un nivel</option>
+                                <option value="EBR INICIAL">EBR INICIAL</option>
+                                <option value="EIB INICIAL">EIB INICIAL</option>
+                                <option value="EBR PRIMARIA">EBR PRIMARIA</option>
+                                <option value="EIB PRIMARIA">EIB PRIMARIA</option>
+                                <option value="EBR SECUNDARIA">EBR SECUNDARIA</option>
+                                <option value="EIB SECUNDARIA">EIB SECUNDARIA</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group" id="areaGroup" style="display: none;">
+                            <label>Área Curricular <span class="required">*</span></label>
+                            <select id="area">
+                                <option value="">Seleccione un área</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <button type="button" class="btn-primary" onclick="registrar()">
+                        <i class="fas fa-save"></i> Registrar
+                    </button>
+                </form>
+            </div>
+
+            <!-- Filtro por nivel -->
+            <div class="filter-section">
+                <i class="fas fa-filter"></i>
+                <label>Filtrar por nivel:</label>
+                <select id="filterNivel" onchange="renderTable()">
+                    <option value="">Todos los niveles</option>
+                    <option value="EBR INICIAL">EBR INICIAL</option>
+                    <option value="EIB INICIAL">EIB INICIAL</option>
+                    <option value="EBR PRIMARIA">EBR PRIMARIA</option>
+                    <option value="EIB PRIMARIA">EIB PRIMARIA</option>
+                    <option value="EBR SECUNDARIA">EBR SECUNDARIA</option>
+                    <option value="EIB SECUNDARIA">EIB SECUNDARIA</option>
+                </select>
+                <span style="margin-left: auto;">Total registros: <strong id="totalRegistros">0</strong></span>
+            </div>
+
+            <!-- Tabla de registros -->
+            <div class="table-section">
+                <table id="dataTable">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Nombres</th>
+                            <th>Apellidos</th>
+                            <th>DNI</th>
+                            <th>Expediente</th>
+                            <th>Teléfono</th>
+                            <th>Correo</th>
+                            <th>Nivel</th>
+                            <th>Área</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody">
+                        <tr>
+                            <td colspan="10" style="text-align: center;">No hay registros</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Editar -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <h2 style="margin-bottom: 20px;"><i class="fas fa-edit"></i> Editar Registro</h2>
+            <input type="hidden" id="editId">
+            <div class="form-group">
+                <label>Nombres</label>
+                <input type="text" id="editNombres">
+            </div>
+            <div class="form-group">
+                <label>Apellidos</label>
+                <input type="text" id="editApellidos">
+            </div>
+            <div class="form-group">
+                <label>DNI</label>
+                <input type="text" id="editDni" maxlength="8">
+            </div>
+            <div class="form-group">
+                <label>Expediente</label>
+                <input type="text" id="editExpediente">
+            </div>
+            <div class="form-group">
+                <label>Teléfono</label>
+                <input type="text" id="editTelefono" maxlength="9">
+            </div>
+            <div class="form-group">
+                <label>Correo</label>
+                <input type="text" id="editCorreo">
+            </div>
+            <div class="form-group">
+                <label>Nivel</label>
+                <select id="editNivel"></select>
+            </div>
+            <div class="form-group" id="editAreaGroup">
+                <label>Área</label>
+                <select id="editArea"></select>
+            </div>
+            <button class="btn-primary" onclick="saveEdit()">Guardar Cambios</button>
+            <button class="btn-secondary" onclick="closeModal()">Cancelar</button>
+        </div>
+    </div>
+
+    <script>
+        let registros = [];
+
+        // Áreas por nivel
+        const areasPorNivel = {
+            'EBR SECUNDARIA': ['MATEMÁTICA', 'COMUNICACIÓN', 'CIENCIA SOCIALES', 'CIENCIA Y TECNOLOGÍA', 'RELIGIÓN', 'DPCC', 'ARTE Y CULTURA'],
+            'EIB SECUNDARIA': ['CIENCIAS SOCIALES', 'COMUNICACIÓN']
+        };
+
+        // Cargar datos guardados
+        function loadData() {
+            const saved = localStorage.getItem('registros_educativos_v2');
+            if (saved) {
+                registros = JSON.parse(saved);
+                renderTable();
+            }
+        }
+
+        // Guardar datos
+        function saveData() {
+            localStorage.setItem('registros_educativos_v2', JSON.stringify(registros));
+        }
+
+        // Validar solo letras
+        function soloLetras(texto) {
+            return /^[a-zA-ZáéíóúñÁÉÍÓÚÑ\s]+$/.test(texto);
+        }
+
+        // Validar DNI (8 dígitos)
+        function validarDNI(dni) {
+            return /^\d{8}$/.test(dni);
+        }
+
+        // Validar teléfono (9 dígitos)
+        function validarTelefono(telefono) {
+            if (!telefono) return true;
+            return /^\d{9}$/.test(telefono);
+        }
+
+        // Validar correo (opcional)
+        function validarCorreo(usuario, dominio) {
+            if (!usuario) return true;
+            return /^[a-zA-Z0-9._-]+$/.test(usuario);
+        }
+
+        // Verificar duplicidad
+        function verificarDuplicidad(dni, expediente) {
+            const duplicadoDNI = registros.find(r => r.dni === dni && dni !== '');
+            const duplicadoExpediente = registros.find(r => r.expediente === expediente && expediente !== '' && expediente !== '-');
+            
+            if (duplicadoDNI) {
+                mostrarNotificacionDuplicado(duplicadoDNI, 'DNI');
+                return true;
+            }
+            if (duplicadoExpediente) {
+                mostrarNotificacionDuplicado(duplicadoExpediente, 'EXPEDIENTE');
+                return true;
+            }
+            return false;
+        }
+
+        // Mostrar notificación de duplicado con datos completos
+        function mostrarNotificacionDuplicado(registroExistente, tipo) {
+            const notification = document.createElement('div');
+            notification.className = 'notification notification-duplicate';
+            notification.style.borderLeftColor = '#f56565';
+            notification.innerHTML = `
+                <i class="fas fa-exclamation-triangle" style="color: #f56565;"></i>
+                <strong> REGISTRO DUPLICADO</strong><br>
+                Ya existe un registro con el mismo ${tipo === 'DNI' ? 'DNI' : 'N° DE EXPEDIENTE'}<br><br>
+                <strong>Datos del registro existente:</strong><br>
+                📌 <strong>Nombre:</strong> ${registroExistente.nombres} ${registroExistente.apellidos}<br>
+                🆔 <strong>DNI:</strong> ${registroExistente.dni}<br>
+                📋 <strong>Expediente:</strong> ${registroExistente.expediente}<br>
+                📞 <strong>Teléfono:</strong> ${registroExistente.telefono || 'No registrado'}<br>
+                📧 <strong>Correo:</strong> ${registroExistente.correo || 'No registrado'}<br>
+                🎓 <strong>Nivel:</strong> ${registroExistente.nivel}<br>
+                📚 <strong>Área:</strong> ${registroExistente.area}<br>
+                📅 <strong>Fecha registro:</strong> ${new Date(registroExistente.fecha).toLocaleString()}<br><br>
+                ⚠️ No se puede registrar un duplicado.
+            `;
+            document.body.appendChild(notification);
+            setTimeout(() => notification.remove(), 8000);
+        }
+
+        // Mostrar/ocultar áreas según nivel
+        function handleNivelChange(nivel, isEdit = false) {
+            const areaGroup = isEdit ? document.getElementById('editAreaGroup') : document.getElementById('areaGroup');
+            const areaSelect = isEdit ? document.getElementById('editArea') : document.getElementById('area');
+            
+            if (areasPorNivel[nivel]) {
+                areaGroup.style.display = 'block';
+                areaSelect.innerHTML = '<option value="">Seleccione un área</option>';
+                areasPorNivel[nivel].forEach(area => {
+                    areaSelect.innerHTML += `<option value="${area}">${area}</option>`;
+                });
+                if (!isEdit) areaSelect.required = true;
+            } else {
+                areaGroup.style.display = 'none';
+                if (!isEdit) areaSelect.required = false;
+                areaSelect.value = '';
+            }
+        }
+
+        // Validar formulario
+        function validarFormulario() {
+            let valido = true;
+            const nombres = document.getElementById('nombres').value.trim();
+            const apellidos = document.getElementById('apellidos').value.trim();
+            const dni = document.getElementById('dni').value.trim();
+            const telefono = document.getElementById('telefono').value.trim();
+            const correoUser = document.getElementById('correoUser').value.trim();
+            const nivel = document.getElementById('nivel').value;
+            const area = document.getElementById('area').value;
+
+            // Validar nombres
+            if (!nombres || !soloLetras(nombres)) {
+                document.getElementById('errorNombres').style.display = 'block';
+                document.getElementById('nombres').classList.add('error');
+                valido = false;
+            } else {
+                document.getElementById('errorNombres').style.display = 'none';
+                document.getElementById('nombres').classList.remove('error');
+            }
+
+            // Validar apellidos
+            if (!apellidos || !soloLetras(apellidos)) {
+                document.getElementById('errorApellidos').style.display = 'block';
+                document.getElementById('apellidos').classList.add('error');
+                valido = false;
+            } else {
+                document.getElementById('errorApellidos').style.display = 'none';
+                document.getElementById('apellidos').classList.remove('error');
+            }
+
+            // Validar DNI
+            if (!dni || !validarDNI(dni)) {
+                document.getElementById('errorDni').style.display = 'block';
+                document.getElementById('dni').classList.add('error');
+                valido = false;
+            } else {
+                document.getElementById('errorDni').style.display = 'none';
+                document.getElementById('dni').classList.remove('error');
+            }
+
+            // Validar teléfono
+            if (telefono && !validarTelefono(telefono)) {
+                document.getElementById('errorTelefono').style.display = 'block';
+                document.getElementById('telefono').classList.add('error');
+                valido = false;
+            } else {
+                document.getElementById('errorTelefono').style.display = 'none';
+                document.getElementById('telefono').classList.remove('error');
+            }
+
+            // Validar correo (opcional)
+            if (correoUser && !validarCorreo(correoUser)) {
+                document.getElementById('errorCorreo').style.display = 'block';
+                document.getElementById('correoUser').classList.add('error');
+                valido = false;
+            } else {
+                document.getElementById('errorCorreo').style.display = 'none';
+                document.getElementById('correoUser').classList.remove('error');
+            }
+
+            // Validar nivel
+            if (!nivel) {
+                alert('Por favor seleccione un nivel educativo');
+                valido = false;
+            }
+
+            // Validar área si es requerida
+            if (areasPorNivel[nivel] && !area) {
+                alert('Por favor seleccione un área curricular');
+                valido = false;
+            }
+
+            // Verificar duplicidad
+            if (valido) {
+                const expediente = document.getElementById('expediente').value.trim() || '-';
+                if (verificarDuplicidad(dni, expediente)) {
+                    valido = false;
+                }
+            }
+
+            return valido;
+        }
+
+        // Registrar nuevo registro
+        function registrar() {
+            if (!validarFormulario()) return;
+
+            const correoDominio = document.getElementById('correoDominio').value;
+            const correoUser = document.getElementById('correoUser').value.trim();
+            const correoCompleto = correoUser ? correoUser + correoDominio : '';
+            const nivel = document.getElementById('nivel').value;
+            const area = areasPorNivel[nivel] ? document.getElementById('area').value : '';
+
+            const nuevoRegistro = {
+                id: Date.now(),
+                nombres: document.getElementById('nombres').value.trim(),
+                apellidos: document.getElementById('apellidos').value.trim(),
+                dni: document.getElementById('dni').value.trim(),
+                expediente: document.getElementById('expediente').value.trim() || '-',
+                telefono: document.getElementById('telefono').value.trim() || '-',
+                correo: correoCompleto || '-',
+                nivel: nivel,
+                area: area || '-',
+                fecha: new Date().toISOString()
+            };
+
+            registros.push(nuevoRegistro);
+            saveData();
+            renderTable();
+            limpiarFormulario();
+            showNotification('✅ Registro creado exitosamente', 'success');
+        }
+
+        // Renderizar tabla con filtro
+        function renderTable() {
+            const filtroNivel = document.getElementById('filterNivel').value;
+            let registrosFiltrados = registros;
+            
+            if (filtroNivel) {
+                registrosFiltrados = registros.filter(r => r.nivel === filtroNivel);
+            }
+            
+            const tbody = document.getElementById('tableBody');
+            document.getElementById('totalRegistros').textContent = registrosFiltrados.length;
+            
+            if (registrosFiltrados.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="10" style="text-align: center;">No hay registros</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = '';
+            registrosFiltrados.forEach((reg, index) => {
+                const row = tbody.insertRow();
+                row.insertCell(0).textContent = index + 1;
+                row.insertCell(1).textContent = reg.nombres;
+                row.insertCell(2).textContent = reg.apellidos;
+                row.insertCell(3).textContent = reg.dni;
+                row.insertCell(4).textContent = reg.expediente;
+                row.insertCell(5).textContent = reg.telefono;
+                row.insertCell(6).textContent = reg.correo;
+                row.insertCell(7).textContent = reg.nivel;
+                row.insertCell(8).textContent = reg.area;
+                
+                const actionsCell = row.insertCell(9);
+                actionsCell.className = 'actions-cell';
+                actionsCell.innerHTML = `
+                    <button class="btn-warning" onclick="editarRegistro(${reg.id})">
+                        <i class="fas fa-edit"></i> Editar
+                    </button>
+                    <button class="btn-danger" onclick="eliminarRegistro(${reg.id})">
+                        <i class="fas fa-trash"></i> Eliminar
+                    </button>
+                `;
+            });
+        }
+
+        // Editar registro
+        function editarRegistro(id) {
+            const registro = registros.find(r => r.id === id);
+            if (!registro) return;
+
+            document.getElementById('editId').value = id;
+            document.getElementById('editNombres').value = registro.nombres;
+            document.getElementById('editApellidos').value = registro.apellidos;
+            document.getElementById('editDni').value = registro.dni;
+            document.getElementById('editExpediente').value = registro.expediente === '-' ? '' : registro.expediente;
+            document.getElementById('editTelefono').value = registro.telefono === '-' ? '' : registro.telefono;
+            document.getElementById('editCorreo').value = registro.correo === '-' ? '' : registro.correo;
+
+            // Llenar niveles en modal
+            const nivelSelect = document.getElementById('editNivel');
+            const niveles = ['EBR INICIAL', 'EIB INICIAL', 'EBR PRIMARIA', 'EIB PRIMARIA', 'EBR SECUNDARIA', 'EIB SECUNDARIA'];
+            nivelSelect.innerHTML = '<option value="">Seleccione un nivel</option>';
+            niveles.forEach(n => {
+                nivelSelect.innerHTML += `<option value="${n}" ${registro.nivel === n ? 'selected' : ''}>${n}</option>`;
+            });
+
+            // Manejar cambio de nivel en modal
+            nivelSelect.onchange = function() {
+                handleNivelChange(this.value, true);
+                if (registro.area !== '-' && areasPorNivel[this.value]?.includes(registro.area)) {
+                    document.getElementById('editArea').value = registro.area;
+                }
+            };
+            
+            handleNivelChange(registro.nivel, true);
+            if (registro.area !== '-') {
+                document.getElementById('editArea').value = registro.area;
+            }
+
+            document.getElementById('editModal').style.display = 'flex';
+        }
+
+        // Guardar edición
+        function saveEdit() {
+            const id = parseInt(document.getElementById('editId').value);
+            const index = registros.findIndex(r => r.id === id);
+            if (index === -1) return;
+
+            const nuevoNivel = document.getElementById('editNivel').value;
+            const nuevaArea = areasPorNivel[nuevoNivel] ? document.getElementById('editArea').value : '';
+
+            registros[index] = {
+                ...registros[index],
+                nombres: document.getElementById('editNombres').value.trim(),
+                apellidos: document.getElementById('editApellidos').value.trim(),
+                dni: document.getElementById('editDni').value.trim(),
+                expediente: document.getElementById('editExpediente').value.trim() || '-',
+                telefono: document.getElementById('editTelefono').value.trim() || '-',
+                correo: document.getElementById('editCorreo').value.trim() || '-',
+                nivel: nuevoNivel,
+                area: nuevaArea || '-'
+            };
+
+            saveData();
+            renderTable();
+            closeModal();
+            showNotification('Registro actualizado', 'success');
+        }
+
+        // Eliminar registro
+        function eliminarRegistro(id) {
+            if (confirm('¿Está seguro de eliminar este registro?')) {
+                registros = registros.filter(r => r.id !== id);
+                saveData();
+                renderTable();
+                showNotification('Registro eliminado', 'success');
+            }
+        }
+
+        // Limpiar formulario
+        function limpiarFormulario() {
+            document.getElementById('nombres').value = '';
+            document.getElementById('apellidos').value = '';
+            document.getElementById('dni').value = '';
+            document.getElementById('expediente').value = '';
+            document.getElementById('telefono').value = '';
+            document.getElementById('correoUser').value = '';
+            document.getElementById('nivel').value = '';
+            document.getElementById('areaGroup').style.display = 'none';
+            document.getElementById('area').value = '';
+        }
+
+        // Exportar a Excel clasificado por nivel
+        function exportToExcel() {
+            if (registros.length === 0) {
+                showNotification('No hay datos para exportar', 'error');
+                return;
+            }
+
+            // Agrupar por nivel
+            const niveles = {};
+            registros.forEach(reg => {
+                if (!niveles[reg.nivel]) {
+                    niveles[reg.nivel] = [];
+                }
+                niveles[reg.nivel].push(reg);
+            });
+
+            const workbook = XLSX.utils.book_new();
+            
+            // Crear hoja para cada nivel
+            for (const [nivel, data] of Object.entries(niveles)) {
+                const sheetData = data.map((reg, idx) => ({
+                    '#': idx + 1,
+                    'Nombres': reg.nombres,
+                    'Apellidos': reg.apellidos,
+                    'DNI': reg.dni,
+                    'Expediente': reg.expediente,
+                    'Teléfono': reg.telefono,
+                    'Correo': reg.correo,
+                    'Nivel': reg.nivel,
+                    'Área': reg.area,
+                    'Fecha Registro': new Date(reg.fecha).toLocaleString()
+                }));
+                
+                const ws = XLSX.utils.json_to_sheet(sheetData);
+                XLSX.utils.book_append_sheet(workbook, ws, nivel.substring(0, 31)); // Máximo 31 caracteres
+            }
+            
+            // Hoja de resumen
+            const resumenData = Object.entries(niveles).map(([nivel, data]) => ({
+                'Nivel': nivel,
+                'Cantidad de Estudiantes': data.length
+            }));
+            const wsResumen = XLSX.utils.json_to_sheet(resumenData);
+            XLSX.utils.book_append_sheet(workbook, wsResumen, 'RESUMEN');
+            
+            XLSX.writeFile(workbook, `registros_clasificados_${new Date().toISOString().split('T')[0]}.xlsx`);
+            showNotification('📊 Exportado a Excel clasificado por nivel', 'success');
+        }
+
+        // Exportar a PDF
+        function exportToPDF() {
+            if (registros.length === 0) {
+                showNotification('No hay datos para exportar', 'error');
+                return;
+            }
+
+            const element = document.getElementById('dataTable');
+            const opt = {
+                margin: 0.5,
+                filename: `registros_${new Date().toISOString().split('T')[0]}.pdf`,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2 },
+                jsPDF: { unit: 'in', format: 'a4', orientation: 'landscape' }
+            };
+            html2pdf().set(opt).from(element).save();
+            showNotification('📄 Generando PDF...', 'info');
+        }
+
+        // Imprimir tabla
+        function printTable() {
+            if (registros.length === 0) {
+                showNotification('No hay datos para imprimir', 'error');
+                return;
+            }
+
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write(`
+                <html>
+                <head>
+                    <title>Reporte de Registros Educativos</title>
+                    <style>
+                        body { font-family: Arial, sans-serif; padding: 20px; }
+                        h1 { color: #667eea; text-align: center; }
+                        .subtitle { text-align: center; color: #666; margin-bottom: 20px; }
+                        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+                        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+                        th { background: #667eea; color: white; }
+                        .footer { text-align: center; margin-top: 20px; font-size: 12px; color: #666; }
+                        .page-break { page-break-before: always; }
+                    </style>
+                </head>
+                <body>
+                    <h1>📚 Sistema de Registro Educativo</h1>
+                    <div class="subtitle">Reporte generado: ${new Date().toLocaleString()}</div>
+                    ${document.getElementById('dataTable').outerHTML}
+                    <div class="footer">Total de registros: ${registros.length}</div>
+                </body>
+                </html>
+            `);
+            printWindow.document.close();
+            printWindow.print();
+            showNotification('🖨️ Enviando a impresión...', 'info');
+        }
+
+        // Mostrar notificación
+        function showNotification(message, type) {
+            const notification = document.createElement('div');
+            notification.className = 'notification';
+            const colors = { success: '#48bb78', error: '#f56565', info: '#4299e1' };
+            notification.style.borderLeftColor = colors[type];
+            notification.innerHTML = `<i class="fas ${type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle'}"></i> ${message}`;
+            document.body.appendChild(notification);
+            setTimeout(() => notification.remove(), 3000);
+        }
+
+        function closeModal() {
+            document.getElementById('editModal').style.display = 'none';
+        }
+
+        // Event listeners
+        document.getElementById('nivel').addEventListener('change', function() {
+            handleNivelChange(this.value, false);
+        });
+
+        document.getElementById('dni').addEventListener('input', function(e) {
+            this.value = this.value.replace(/[^0-9]/g, '').slice(0, 8);
+        });
+
+        document.getElementById('telefono').addEventListener('input', function(e) {
+            this.value = this.value.replace(/[^0-9]/g, '').slice(0, 9);
+        });
+
+        document.getElementById('nombres').addEventListener('input', function(e) {
+            this.value = this.value.replace(/[^a-zA-ZáéíóúñÁÉÍÓÚÑ\s]/g, '');
+        });
+
+        document.getElementById('apellidos').addEventListener('input', function(e) {
+            this.value = this.value.replace(/[^a-zA-ZáéíóúñÁÉÍÓÚÑ\s]/g, '');
+        });
+
+        // Inicializar
+        loadData();
+    </script>
+</body>
+</html>
