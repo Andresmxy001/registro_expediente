@@ -536,8 +536,9 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1><i class="fas fa-graduation-cap"></i> Sistema de Registro Educativo</h1>
-            <p>Registro de estudiantes por niveles y áreas curriculares</p>
+            <h1><i class="fas fa-graduation-cap"></i>SISTEMA DE REGISTRO DOCUMENTARIO</h1>
+            <p1>Unidad de Gestion Educativa Local - Loreto - Nauta</p1>
+            <p>Desarrollador @Andres_Murayari</p>
             <button class="theme-toggle" id="themeToggleBtn">
                 <i class="fas fa-moon"></i> 
                 <span>Modo Oscuro</span>
@@ -547,6 +548,10 @@
         <div class="content">
             <!-- Botones de exportación/importación -->
             <div class="actions-bar">
+                  <button class="action-btn" id="importBtn" onclick="document.getElementById('importFile').click()">
+                    <i class="fas fa-file-import" style="color: #9b59b6;"></i> Importar Excel
+                </button>
+                <input type="file" id="importFile" accept=".xlsx, .xls" style="display: none;" onchange="importExcel(this.files)">
                 <button class="action-btn" onclick="exportToExcel()">
                     <i class="fas fa-file-excel" style="color: #10b981;"></i> Exportar Excel
                 </button>
@@ -556,10 +561,7 @@
                 <button class="action-btn" onclick="printTable()">
                     <i class="fas fa-print" style="color: #667eea;"></i> Imprimir
                 </button>
-                <button class="action-btn" id="importBtn" onclick="document.getElementById('importFile').click()">
-                    <i class="fas fa-file-import" style="color: #9b59b6;"></i> Importar Excel
-                </button>
-                <input type="file" id="importFile" accept=".xlsx, .xls" style="display: none;" onchange="importExcel(this.files)">
+              
             </div>
 
             <!-- Formulario de registro -->
