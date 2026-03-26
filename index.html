@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Sistema de Registro Educativo - Versión Avanzada</title>
+    <title>Sistema de Registro Educativo - Importar/Exportar Excel</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
@@ -12,11 +12,46 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            transition: background-color 0.3s ease, color 0.2s ease, border-color 0.2s ease;
+        }
+
+        /* Modo Claro (default) */
+        :root {
+            --bg-gradient-start: #667eea;
+            --bg-gradient-end: #764ba2;
+            --container-bg: white;
+            --text-primary: #333;
+            --text-secondary: #666;
+            --card-bg: #f8f9fa;
+            --border-color: #e2e8f0;
+            --table-header-bg: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --table-row-hover: #f7fafc;
+            --input-bg: white;
+            --btn-secondary-bg: #48bb78;
+            --btn-secondary-hover: #38a169;
+            --shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        /* Modo Oscuro */
+        body.dark-mode {
+            --bg-gradient-start: #1a202c;
+            --bg-gradient-end: #2d3748;
+            --container-bg: #2d3748;
+            --text-primary: #f7fafc;
+            --text-secondary: #cbd5e0;
+            --card-bg: #4a5568;
+            --border-color: #4a5568;
+            --table-header-bg: linear-gradient(135deg, #2c3e50 0%, #1a2634 100%);
+            --table-row-hover: #3b4b5e;
+            --input-bg: #4a5568;
+            --btn-secondary-bg: #38a169;
+            --btn-secondary-hover: #2f855a;
+            --shadow: 0 2px 10px rgba(0,0,0,0.3);
         }
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
             min-height: 100vh;
             padding: 20px;
         }
@@ -24,7 +59,7 @@
         .container {
             max-width: 1400px;
             margin: 0 auto;
-            background: white;
+            background: var(--container-bg);
             border-radius: 20px;
             box-shadow: 0 20px 60px rgba(0,0,0,0.3);
             overflow: hidden;
@@ -37,10 +72,11 @@
         }
 
         .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
             color: white;
             padding: 30px;
             text-align: center;
+            position: relative;
         }
 
         .header h1 {
@@ -52,23 +88,48 @@
             opacity: 0.9;
         }
 
+        /* Botón modo día/noche */
+        .theme-toggle {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            background: rgba(255,255,255,0.2);
+            border: none;
+            border-radius: 50px;
+            padding: 12px 18px;
+            cursor: pointer;
+            font-size: 1.2rem;
+            color: white;
+            backdrop-filter: blur(5px);
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+        }
+
+        .theme-toggle:hover {
+            background: rgba(255,255,255,0.3);
+            transform: scale(1.05);
+        }
+
         .content {
             padding: 30px;
         }
 
         /* Formulario */
         .form-section {
-            background: #f8f9fa;
+            background: var(--card-bg);
             padding: 25px;
             border-radius: 15px;
             margin-bottom: 30px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            box-shadow: var(--shadow);
         }
 
         .form-title {
             font-size: 1.5em;
             margin-bottom: 20px;
-            color: #333;
+            color: var(--text-primary);
             border-left: 4px solid #667eea;
             padding-left: 15px;
         }
@@ -87,7 +148,7 @@
             display: block;
             margin-bottom: 8px;
             font-weight: 600;
-            color: #333;
+            color: var(--text-primary);
         }
 
         .form-group label .required {
@@ -99,10 +160,12 @@
         .form-group select {
             width: 100%;
             padding: 12px;
-            border: 2px solid #e2e8f0;
+            border: 2px solid var(--border-color);
             border-radius: 10px;
             font-size: 14px;
             transition: all 0.3s;
+            background: var(--input-bg);
+            color: var(--text-primary);
         }
 
         .form-group input:focus,
@@ -156,7 +219,7 @@
         }
 
         .btn-secondary {
-            background: #48bb78;
+            background: var(--btn-secondary-bg);
             color: white;
             border: none;
             padding: 10px 20px;
@@ -167,7 +230,7 @@
         }
 
         .btn-secondary:hover {
-            background: #38a169;
+            background: var(--btn-secondary-hover);
             transform: translateY(-2px);
         }
 
@@ -216,18 +279,10 @@
             background: #3182ce;
         }
 
-        /* Acciones superiores */
-        .actions-bar {
-            display: flex;
-            gap: 15px;
-            justify-content: flex-end;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-        }
-
-        .action-btn {
-            background: white;
-            border: 2px solid #e2e8f0;
+        .btn-import {
+            background: #9b59b6;
+            color: white;
+            border: none;
             padding: 10px 20px;
             border-radius: 10px;
             cursor: pointer;
@@ -238,17 +293,50 @@
             gap: 8px;
         }
 
+        .btn-import:hover {
+            background: #8e44ad;
+            transform: translateY(-2px);
+        }
+
+        /* Acciones superiores */
+        .actions-bar {
+            display: flex;
+            gap: 15px;
+            justify-content: flex-end;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .action-btn {
+            background: var(--card-bg);
+            border: 2px solid var(--border-color);
+            padding: 10px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-primary);
+        }
+
         .action-btn:hover {
             border-color: #667eea;
             transform: translateY(-2px);
         }
 
+        /* Input file oculto */
+        .file-input-hidden {
+            display: none;
+        }
+
         /* Tabla */
         .table-section {
-            background: white;
+            background: var(--container-bg);
             border-radius: 15px;
             overflow-x: auto;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            box-shadow: var(--shadow);
         }
 
         table {
@@ -257,7 +345,7 @@
         }
 
         th {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: var(--table-header-bg);
             color: white;
             padding: 15px;
             text-align: left;
@@ -268,11 +356,12 @@
 
         td {
             padding: 12px 15px;
-            border-bottom: 1px solid #e2e8f0;
+            border-bottom: 1px solid var(--border-color);
+            color: var(--text-primary);
         }
 
         tr:hover {
-            background: #f7fafc;
+            background: var(--table-row-hover);
         }
 
         .actions-cell {
@@ -297,13 +386,14 @@
         }
 
         .modal-content {
-            background: white;
+            background: var(--container-bg);
             border-radius: 20px;
             padding: 30px;
             max-width: 500px;
             width: 90%;
             max-height: 80vh;
             overflow-y: auto;
+            color: var(--text-primary);
         }
 
         /* Notificaciones */
@@ -312,17 +402,18 @@
             top: 20px;
             right: 20px;
             padding: 15px 25px;
-            background: white;
+            background: var(--container-bg);
             border-radius: 10px;
             box-shadow: 0 4px 12px rgba(0,0,0,0.15);
             z-index: 2000;
             animation: slideIn 0.3s ease;
             border-left: 4px solid;
             max-width: 400px;
+            color: var(--text-primary);
         }
 
         .notification-duplicate {
-            background: #fff5f5;
+            background: var(--card-bg);
             border-left-color: #f56565;
         }
 
@@ -335,18 +426,67 @@
         .filter-section {
             margin-bottom: 20px;
             padding: 15px;
-            background: #f8f9fa;
+            background: var(--card-bg);
             border-radius: 10px;
             display: flex;
-            gap: 10px;
+            gap: 15px;
             flex-wrap: wrap;
             align-items: center;
         }
 
-        .filter-section select {
-            padding: 8px 15px;
-            border: 1px solid #e2e8f0;
+        .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            background: var(--input-bg);
+            padding: 5px 15px;
             border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+
+        .filter-group label {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .filter-group select, 
+        .filter-group input {
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background: var(--input-bg);
+            color: var(--text-primary);
+        }
+
+        .filter-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .filter-clear {
+            background: #f56565;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .filter-clear:hover {
+            background: #e53e3e;
+            transform: scale(1.02);
+        }
+
+        .total-badge {
+            margin-left: auto;
+            font-weight: 600;
+            background: var(--bg-gradient-start);
+            padding: 8px 16px;
+            border-radius: 20px;
+            color: white;
         }
 
         @media (max-width: 768px) {
@@ -366,6 +506,30 @@
                 max-width: 90%;
                 font-size: 14px;
             }
+            .filter-section {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .filter-group {
+                justify-content: space-between;
+            }
+            .total-badge {
+                margin-left: 0;
+                text-align: center;
+            }
+            .theme-toggle {
+                position: relative;
+                top: auto;
+                right: auto;
+                margin-top: 15px;
+                display: inline-flex;
+                justify-content: center;
+            }
+            .header {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+            }
         }
     </style>
 </head>
@@ -374,10 +538,14 @@
         <div class="header">
             <h1><i class="fas fa-graduation-cap"></i> Sistema de Registro Educativo</h1>
             <p>Registro de estudiantes por niveles y áreas curriculares</p>
+            <button class="theme-toggle" id="themeToggleBtn">
+                <i class="fas fa-moon"></i> 
+                <span>Modo Oscuro</span>
+            </button>
         </div>
 
         <div class="content">
-            <!-- Botones de exportación -->
+            <!-- Botones de exportación/importación -->
             <div class="actions-bar">
                 <button class="action-btn" onclick="exportToExcel()">
                     <i class="fas fa-file-excel" style="color: #10b981;"></i> Exportar Excel
@@ -388,6 +556,10 @@
                 <button class="action-btn" onclick="printTable()">
                     <i class="fas fa-print" style="color: #667eea;"></i> Imprimir
                 </button>
+                <button class="action-btn" id="importBtn" onclick="document.getElementById('importFile').click()">
+                    <i class="fas fa-file-import" style="color: #9b59b6;"></i> Importar Excel
+                </button>
+                <input type="file" id="importFile" accept=".xlsx, .xls" style="display: none;" onchange="importExcel(this.files)">
             </div>
 
             <!-- Formulario de registro -->
@@ -464,20 +636,34 @@
                 </form>
             </div>
 
-            <!-- Filtro por nivel -->
+            <!-- Filtros mejorados: Nivel + Búsqueda por Nombre/DNI -->
             <div class="filter-section">
-                <i class="fas fa-filter"></i>
-                <label>Filtrar por nivel:</label>
-                <select id="filterNivel" onchange="renderTable()">
-                    <option value="">Todos los niveles</option>
-                    <option value="EBR INICIAL">EBR INICIAL</option>
-                    <option value="EIB INICIAL">EIB INICIAL</option>
-                    <option value="EBR PRIMARIA">EBR PRIMARIA</option>
-                    <option value="EIB PRIMARIA">EIB PRIMARIA</option>
-                    <option value="EBR SECUNDARIA">EBR SECUNDARIA</option>
-                    <option value="EIB SECUNDARIA">EIB SECUNDARIA</option>
-                </select>
-                <span style="margin-left: auto;">Total registros: <strong id="totalRegistros">0</strong></span>
+                <div class="filter-group">
+                    <i class="fas fa-filter"></i>
+                    <label>Nivel:</label>
+                    <select id="filterNivel" onchange="filterAndRender()">
+                        <option value="">Todos los niveles</option>
+                        <option value="EBR INICIAL">EBR INICIAL</option>
+                        <option value="EIB INICIAL">EIB INICIAL</option>
+                        <option value="EBR PRIMARIA">EBR PRIMARIA</option>
+                        <option value="EIB PRIMARIA">EIB PRIMARIA</option>
+                        <option value="EBR SECUNDARIA">EBR SECUNDARIA</option>
+                        <option value="EIB SECUNDARIA">EIB SECUNDARIA</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <i class="fas fa-search"></i>
+                    <label>Buscar:</label>
+                    <input type="text" id="searchInput" placeholder="Nombre o DNI..." onkeyup="filterAndRender()">
+                    <button class="filter-clear" onclick="clearSearch()">
+                        <i class="fas fa-times"></i> Limpiar
+                    </button>
+                </div>
+                
+                <div class="total-badge">
+                    Total: <strong id="totalRegistros">0</strong>
+                </div>
             </div>
 
             <!-- Tabla de registros -->
@@ -558,13 +744,14 @@
             'EIB SECUNDARIA': ['CIENCIAS SOCIALES', 'COMUNICACIÓN']
         };
 
-        // Cargar datos guardados
+        // Cargar datos guardados y tema
         function loadData() {
             const saved = localStorage.getItem('registros_educativos_v2');
             if (saved) {
                 registros = JSON.parse(saved);
-                renderTable();
+                filterAndRender();
             }
+            loadTheme();
         }
 
         // Guardar datos
@@ -572,210 +759,151 @@
             localStorage.setItem('registros_educativos_v2', JSON.stringify(registros));
         }
 
-        // Validar solo letras
-        function soloLetras(texto) {
-            return /^[a-zA-ZáéíóúñÁÉÍÓÚÑ\s]+$/.test(texto);
+        // Tema oscuro/claro
+        function loadTheme() {
+            const theme = localStorage.getItem('theme');
+            if (theme === 'dark') {
+                document.body.classList.add('dark-mode');
+                document.getElementById('themeToggleBtn').innerHTML = '<i class="fas fa-sun"></i> <span>Modo Claro</span>';
+            } else {
+                document.body.classList.remove('dark-mode');
+                document.getElementById('themeToggleBtn').innerHTML = '<i class="fas fa-moon"></i> <span>Modo Oscuro</span>';
+            }
         }
 
-        // Validar DNI (8 dígitos)
-        function validarDNI(dni) {
-            return /^\d{8}$/.test(dni);
+        function toggleTheme() {
+            if (document.body.classList.contains('dark-mode')) {
+                document.body.classList.remove('dark-mode');
+                localStorage.setItem('theme', 'light');
+                document.getElementById('themeToggleBtn').innerHTML = '<i class="fas fa-moon"></i> <span>Modo Oscuro</span>';
+            } else {
+                document.body.classList.add('dark-mode');
+                localStorage.setItem('theme', 'dark');
+                document.getElementById('themeToggleBtn').innerHTML = '<i class="fas fa-sun"></i> <span>Modo Claro</span>';
+            }
         }
 
-        // Validar teléfono (9 dígitos)
-        function validarTelefono(telefono) {
-            if (!telefono) return true;
-            return /^\d{9}$/.test(telefono);
-        }
-
-        // Validar correo (opcional)
-        function validarCorreo(usuario, dominio) {
-            if (!usuario) return true;
-            return /^[a-zA-Z0-9._-]+$/.test(usuario);
-        }
-
-        // Verificar duplicidad
-        function verificarDuplicidad(dni, expediente) {
-            const duplicadoDNI = registros.find(r => r.dni === dni && dni !== '');
-            const duplicadoExpediente = registros.find(r => r.expediente === expediente && expediente !== '' && expediente !== '-');
+        // Función para importar Excel
+        function importExcel(files) {
+            if (files.length === 0) return;
             
-            if (duplicadoDNI) {
-                mostrarNotificacionDuplicado(duplicadoDNI, 'DNI');
-                return true;
-            }
-            if (duplicadoExpediente) {
-                mostrarNotificacionDuplicado(duplicadoExpediente, 'EXPEDIENTE');
-                return true;
-            }
-            return false;
-        }
-
-        // Mostrar notificación de duplicado con datos completos
-        function mostrarNotificacionDuplicado(registroExistente, tipo) {
-            const notification = document.createElement('div');
-            notification.className = 'notification notification-duplicate';
-            notification.style.borderLeftColor = '#f56565';
-            notification.innerHTML = `
-                <i class="fas fa-exclamation-triangle" style="color: #f56565;"></i>
-                <strong> REGISTRO DUPLICADO</strong><br>
-                Ya existe un registro con el mismo ${tipo === 'DNI' ? 'DNI' : 'N° DE EXPEDIENTE'}<br><br>
-                <strong>Datos del registro existente:</strong><br>
-                📌 <strong>Nombre:</strong> ${registroExistente.nombres} ${registroExistente.apellidos}<br>
-                🆔 <strong>DNI:</strong> ${registroExistente.dni}<br>
-                📋 <strong>Expediente:</strong> ${registroExistente.expediente}<br>
-                📞 <strong>Teléfono:</strong> ${registroExistente.telefono || 'No registrado'}<br>
-                📧 <strong>Correo:</strong> ${registroExistente.correo || 'No registrado'}<br>
-                🎓 <strong>Nivel:</strong> ${registroExistente.nivel}<br>
-                📚 <strong>Área:</strong> ${registroExistente.area}<br>
-                📅 <strong>Fecha registro:</strong> ${new Date(registroExistente.fecha).toLocaleString()}<br><br>
-                ⚠️ No se puede registrar un duplicado.
-            `;
-            document.body.appendChild(notification);
-            setTimeout(() => notification.remove(), 8000);
-        }
-
-        // Mostrar/ocultar áreas según nivel
-        function handleNivelChange(nivel, isEdit = false) {
-            const areaGroup = isEdit ? document.getElementById('editAreaGroup') : document.getElementById('areaGroup');
-            const areaSelect = isEdit ? document.getElementById('editArea') : document.getElementById('area');
+            const file = files[0];
+            const reader = new FileReader();
             
-            if (areasPorNivel[nivel]) {
-                areaGroup.style.display = 'block';
-                areaSelect.innerHTML = '<option value="">Seleccione un área</option>';
-                areasPorNivel[nivel].forEach(area => {
-                    areaSelect.innerHTML += `<option value="${area}">${area}</option>`;
-                });
-                if (!isEdit) areaSelect.required = true;
-            } else {
-                areaGroup.style.display = 'none';
-                if (!isEdit) areaSelect.required = false;
-                areaSelect.value = '';
-            }
-        }
-
-        // Validar formulario
-        function validarFormulario() {
-            let valido = true;
-            const nombres = document.getElementById('nombres').value.trim();
-            const apellidos = document.getElementById('apellidos').value.trim();
-            const dni = document.getElementById('dni').value.trim();
-            const telefono = document.getElementById('telefono').value.trim();
-            const correoUser = document.getElementById('correoUser').value.trim();
-            const nivel = document.getElementById('nivel').value;
-            const area = document.getElementById('area').value;
-
-            // Validar nombres
-            if (!nombres || !soloLetras(nombres)) {
-                document.getElementById('errorNombres').style.display = 'block';
-                document.getElementById('nombres').classList.add('error');
-                valido = false;
-            } else {
-                document.getElementById('errorNombres').style.display = 'none';
-                document.getElementById('nombres').classList.remove('error');
-            }
-
-            // Validar apellidos
-            if (!apellidos || !soloLetras(apellidos)) {
-                document.getElementById('errorApellidos').style.display = 'block';
-                document.getElementById('apellidos').classList.add('error');
-                valido = false;
-            } else {
-                document.getElementById('errorApellidos').style.display = 'none';
-                document.getElementById('apellidos').classList.remove('error');
-            }
-
-            // Validar DNI
-            if (!dni || !validarDNI(dni)) {
-                document.getElementById('errorDni').style.display = 'block';
-                document.getElementById('dni').classList.add('error');
-                valido = false;
-            } else {
-                document.getElementById('errorDni').style.display = 'none';
-                document.getElementById('dni').classList.remove('error');
-            }
-
-            // Validar teléfono
-            if (telefono && !validarTelefono(telefono)) {
-                document.getElementById('errorTelefono').style.display = 'block';
-                document.getElementById('telefono').classList.add('error');
-                valido = false;
-            } else {
-                document.getElementById('errorTelefono').style.display = 'none';
-                document.getElementById('telefono').classList.remove('error');
-            }
-
-            // Validar correo (opcional)
-            if (correoUser && !validarCorreo(correoUser)) {
-                document.getElementById('errorCorreo').style.display = 'block';
-                document.getElementById('correoUser').classList.add('error');
-                valido = false;
-            } else {
-                document.getElementById('errorCorreo').style.display = 'none';
-                document.getElementById('correoUser').classList.remove('error');
-            }
-
-            // Validar nivel
-            if (!nivel) {
-                alert('Por favor seleccione un nivel educativo');
-                valido = false;
-            }
-
-            // Validar área si es requerida
-            if (areasPorNivel[nivel] && !area) {
-                alert('Por favor seleccione un área curricular');
-                valido = false;
-            }
-
-            // Verificar duplicidad
-            if (valido) {
-                const expediente = document.getElementById('expediente').value.trim() || '-';
-                if (verificarDuplicidad(dni, expediente)) {
-                    valido = false;
+            reader.onload = function(e) {
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, { type: 'array' });
+                const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+                const jsonData = XLSX.utils.sheet_to_json(firstSheet);
+                
+                if (jsonData.length === 0) {
+                    showNotification('El archivo Excel está vacío', 'error');
+                    return;
                 }
-            }
-
-            return valido;
-        }
-
-        // Registrar nuevo registro
-        function registrar() {
-            if (!validarFormulario()) return;
-
-            const correoDominio = document.getElementById('correoDominio').value;
-            const correoUser = document.getElementById('correoUser').value.trim();
-            const correoCompleto = correoUser ? correoUser + correoDominio : '';
-            const nivel = document.getElementById('nivel').value;
-            const area = areasPorNivel[nivel] ? document.getElementById('area').value : '';
-
-            const nuevoRegistro = {
-                id: Date.now(),
-                nombres: document.getElementById('nombres').value.trim(),
-                apellidos: document.getElementById('apellidos').value.trim(),
-                dni: document.getElementById('dni').value.trim(),
-                expediente: document.getElementById('expediente').value.trim() || '-',
-                telefono: document.getElementById('telefono').value.trim() || '-',
-                correo: correoCompleto || '-',
-                nivel: nivel,
-                area: area || '-',
-                fecha: new Date().toISOString()
+                
+                let importados = 0;
+                let duplicados = 0;
+                let errores = 0;
+                
+                jsonData.forEach(row => {
+                    // Mapear columnas (soporta diferentes nombres de columna)
+                    const nombres = row['Nombres'] || row['Nombre'] || row['NOMBRES'] || '';
+                    const apellidos = row['Apellidos'] || row['Apellido'] || row['APELLIDOS'] || '';
+                    const dni = row['DNI'] || row['Dni'] || row['dni'] || '';
+                    const expediente = row['Expediente'] || row['EXPEDIENTE'] || '';
+                    const telefono = row['Teléfono'] || row['Telefono'] || row['TELÉFONO'] || '';
+                    const correo = row['Correo'] || row['EMAIL'] || row['email'] || '';
+                    const nivel = row['Nivel'] || row['NIVEL'] || '';
+                    const area = row['Área'] || row['Area'] || row['AREA'] || '';
+                    
+                    // Validar datos mínimos
+                    if (!nombres || !apellidos || !dni || !nivel) {
+                        errores++;
+                        return;
+                    }
+                    
+                    // Validar DNI
+                    if (!/^\d{8}$/.test(String(dni).trim())) {
+                        errores++;
+                        return;
+                    }
+                    
+                    // Verificar duplicado
+                    const existe = registros.find(r => r.dni === String(dni).trim());
+                    if (existe) {
+                        duplicados++;
+                        return;
+                    }
+                    
+                    // Crear nuevo registro
+                    const nuevoRegistro = {
+                        id: Date.now() + importados,
+                        nombres: String(nombres).trim(),
+                        apellidos: String(apellidos).trim(),
+                        dni: String(dni).trim(),
+                        expediente: expediente ? String(expediente).trim() : '-',
+                        telefono: telefono ? String(telefono).trim() : '-',
+                        correo: correo ? String(correo).trim() : '-',
+                        nivel: String(nivel).trim(),
+                        area: area ? String(area).trim() : '-',
+                        fecha: new Date().toISOString()
+                    };
+                    
+                    registros.push(nuevoRegistro);
+                    importados++;
+                });
+                
+                saveData();
+                filterAndRender();
+                
+                // Mostrar resumen de importación
+                let mensaje = `✅ Importación completada\n📥 Importados: ${importados}\n`;
+                if (duplicados > 0) mensaje += `⚠️ Duplicados omitidos: ${duplicados}\n`;
+                if (errores > 0) mensaje += `❌ Registros con error: ${errores}`;
+                
+                showNotification(mensaje, importados > 0 ? 'success' : 'error');
+                
+                // Limpiar input file
+                document.getElementById('importFile').value = '';
             };
-
-            registros.push(nuevoRegistro);
-            saveData();
-            renderTable();
-            limpiarFormulario();
-            showNotification('✅ Registro creado exitosamente', 'success');
+            
+            reader.readAsArrayBuffer(file);
         }
 
-        // Renderizar tabla con filtro
-        function renderTable() {
+        // Filtro combinado: nivel + búsqueda (nombre o dni)
+        function getFilteredRegistros() {
             const filtroNivel = document.getElementById('filterNivel').value;
-            let registrosFiltrados = registros;
+            const searchTerm = document.getElementById('searchInput').value.trim().toLowerCase();
+            
+            let filtered = registros;
             
             if (filtroNivel) {
-                registrosFiltrados = registros.filter(r => r.nivel === filtroNivel);
+                filtered = filtered.filter(r => r.nivel === filtroNivel);
             }
             
+            if (searchTerm) {
+                filtered = filtered.filter(r => 
+                    r.nombres.toLowerCase().includes(searchTerm) ||
+                    r.apellidos.toLowerCase().includes(searchTerm) ||
+                    r.dni.includes(searchTerm)
+                );
+            }
+            
+            return filtered;
+        }
+
+        function filterAndRender() {
+            renderTable();
+        }
+
+        function clearSearch() {
+            document.getElementById('searchInput').value = '';
+            filterAndRender();
+        }
+
+        // Renderizar tabla con filtros combinados
+        function renderTable() {
+            const registrosFiltrados = getFilteredRegistros();
             const tbody = document.getElementById('tableBody');
             document.getElementById('totalRegistros').textContent = registrosFiltrados.length;
             
@@ -810,81 +938,93 @@
             });
         }
 
-        // Editar registro
-        function editarRegistro(id) {
-            const registro = registros.find(r => r.id === id);
-            if (!registro) return;
+        // Validaciones y funciones de registro
+        function soloLetras(texto) { return /^[a-zA-ZáéíóúñÁÉÍÓÚÑ\s]+$/.test(texto); }
+        function validarDNI(dni) { return /^\d{8}$/.test(dni); }
+        function validarTelefono(telefono) { if (!telefono) return true; return /^\d{9}$/.test(telefono); }
+        function validarCorreo(usuario) { if (!usuario) return true; return /^[a-zA-Z0-9._-]+$/.test(usuario); }
 
-            document.getElementById('editId').value = id;
-            document.getElementById('editNombres').value = registro.nombres;
-            document.getElementById('editApellidos').value = registro.apellidos;
-            document.getElementById('editDni').value = registro.dni;
-            document.getElementById('editExpediente').value = registro.expediente === '-' ? '' : registro.expediente;
-            document.getElementById('editTelefono').value = registro.telefono === '-' ? '' : registro.telefono;
-            document.getElementById('editCorreo').value = registro.correo === '-' ? '' : registro.correo;
-
-            // Llenar niveles en modal
-            const nivelSelect = document.getElementById('editNivel');
-            const niveles = ['EBR INICIAL', 'EIB INICIAL', 'EBR PRIMARIA', 'EIB PRIMARIA', 'EBR SECUNDARIA', 'EIB SECUNDARIA'];
-            nivelSelect.innerHTML = '<option value="">Seleccione un nivel</option>';
-            niveles.forEach(n => {
-                nivelSelect.innerHTML += `<option value="${n}" ${registro.nivel === n ? 'selected' : ''}>${n}</option>`;
-            });
-
-            // Manejar cambio de nivel en modal
-            nivelSelect.onchange = function() {
-                handleNivelChange(this.value, true);
-                if (registro.area !== '-' && areasPorNivel[this.value]?.includes(registro.area)) {
-                    document.getElementById('editArea').value = registro.area;
-                }
-            };
-            
-            handleNivelChange(registro.nivel, true);
-            if (registro.area !== '-') {
-                document.getElementById('editArea').value = registro.area;
-            }
-
-            document.getElementById('editModal').style.display = 'flex';
+        function verificarDuplicidad(dni, expediente) {
+            const duplicadoDNI = registros.find(r => r.dni === dni && dni !== '');
+            const duplicadoExpediente = registros.find(r => r.expediente === expediente && expediente !== '' && expediente !== '-');
+            if (duplicadoDNI) { mostrarNotificacionDuplicado(duplicadoDNI, 'DNI'); return true; }
+            if (duplicadoExpediente) { mostrarNotificacionDuplicado(duplicadoExpediente, 'EXPEDIENTE'); return true; }
+            return false;
         }
 
-        // Guardar edición
-        function saveEdit() {
-            const id = parseInt(document.getElementById('editId').value);
-            const index = registros.findIndex(r => r.id === id);
-            if (index === -1) return;
+        function mostrarNotificacionDuplicado(registroExistente, tipo) {
+            const notification = document.createElement('div');
+            notification.className = 'notification notification-duplicate';
+            notification.innerHTML = `<i class="fas fa-exclamation-triangle"></i> <strong>REGISTRO DUPLICADO</strong><br>Ya existe un registro con el mismo ${tipo}<br><strong>Nombre:</strong> ${registroExistente.nombres} ${registroExistente.apellidos}<br>⚠️ No se puede registrar un duplicado.`;
+            document.body.appendChild(notification);
+            setTimeout(() => notification.remove(), 5000);
+        }
 
-            const nuevoNivel = document.getElementById('editNivel').value;
-            const nuevaArea = areasPorNivel[nuevoNivel] ? document.getElementById('editArea').value : '';
+        function handleNivelChange(nivel, isEdit = false) {
+            const areaGroup = isEdit ? document.getElementById('editAreaGroup') : document.getElementById('areaGroup');
+            const areaSelect = isEdit ? document.getElementById('editArea') : document.getElementById('area');
+            if (areasPorNivel[nivel]) {
+                areaGroup.style.display = 'block';
+                areaSelect.innerHTML = '<option value="">Seleccione un área</option>';
+                areasPorNivel[nivel].forEach(area => { areaSelect.innerHTML += `<option value="${area}">${area}</option>`; });
+                if (!isEdit) areaSelect.required = true;
+            } else {
+                areaGroup.style.display = 'none';
+                if (!isEdit) areaSelect.required = false;
+                areaSelect.value = '';
+            }
+        }
 
-            registros[index] = {
-                ...registros[index],
-                nombres: document.getElementById('editNombres').value.trim(),
-                apellidos: document.getElementById('editApellidos').value.trim(),
-                dni: document.getElementById('editDni').value.trim(),
-                expediente: document.getElementById('editExpediente').value.trim() || '-',
-                telefono: document.getElementById('editTelefono').value.trim() || '-',
-                correo: document.getElementById('editCorreo').value.trim() || '-',
-                nivel: nuevoNivel,
-                area: nuevaArea || '-'
+        function validarFormulario() {
+            let valido = true;
+            const nombres = document.getElementById('nombres').value.trim();
+            const apellidos = document.getElementById('apellidos').value.trim();
+            const dni = document.getElementById('dni').value.trim();
+            const telefono = document.getElementById('telefono').value.trim();
+            const correoUser = document.getElementById('correoUser').value.trim();
+            const nivel = document.getElementById('nivel').value;
+            const area = document.getElementById('area').value;
+
+            if (!nombres || !soloLetras(nombres)) { document.getElementById('errorNombres').style.display = 'block'; valido = false; } 
+            else { document.getElementById('errorNombres').style.display = 'none'; }
+            if (!apellidos || !soloLetras(apellidos)) { document.getElementById('errorApellidos').style.display = 'block'; valido = false; } 
+            else { document.getElementById('errorApellidos').style.display = 'none'; }
+            if (!dni || !validarDNI(dni)) { document.getElementById('errorDni').style.display = 'block'; valido = false; } 
+            else { document.getElementById('errorDni').style.display = 'none'; }
+            if (telefono && !validarTelefono(telefono)) { document.getElementById('errorTelefono').style.display = 'block'; valido = false; } 
+            else { document.getElementById('errorTelefono').style.display = 'none'; }
+            if (correoUser && !validarCorreo(correoUser)) { document.getElementById('errorCorreo').style.display = 'block'; valido = false; } 
+            else { document.getElementById('errorCorreo').style.display = 'none'; }
+            if (!nivel) { alert('Seleccione un nivel'); valido = false; }
+            if (areasPorNivel[nivel] && !area) { alert('Seleccione un área'); valido = false; }
+            if (valido) { const expediente = document.getElementById('expediente').value.trim() || '-'; if (verificarDuplicidad(dni, expediente)) valido = false; }
+            return valido;
+        }
+
+        function registrar() {
+            if (!validarFormulario()) return;
+            const correoCompleto = document.getElementById('correoUser').value.trim() ? document.getElementById('correoUser').value.trim() + document.getElementById('correoDominio').value : '';
+            const nivel = document.getElementById('nivel').value;
+            const area = areasPorNivel[nivel] ? document.getElementById('area').value : '';
+            const nuevoRegistro = {
+                id: Date.now(),
+                nombres: document.getElementById('nombres').value.trim(),
+                apellidos: document.getElementById('apellidos').value.trim(),
+                dni: document.getElementById('dni').value.trim(),
+                expediente: document.getElementById('expediente').value.trim() || '-',
+                telefono: document.getElementById('telefono').value.trim() || '-',
+                correo: correoCompleto || '-',
+                nivel: nivel,
+                area: area || '-',
+                fecha: new Date().toISOString()
             };
-
+            registros.push(nuevoRegistro);
             saveData();
-            renderTable();
-            closeModal();
-            showNotification('Registro actualizado', 'success');
+            filterAndRender();
+            limpiarFormulario();
+            showNotification('✅ Registro creado exitosamente', 'success');
         }
 
-        // Eliminar registro
-        function eliminarRegistro(id) {
-            if (confirm('¿Está seguro de eliminar este registro?')) {
-                registros = registros.filter(r => r.id !== id);
-                saveData();
-                renderTable();
-                showNotification('Registro eliminado', 'success');
-            }
-        }
-
-        // Limpiar formulario
         function limpiarFormulario() {
             document.getElementById('nombres').value = '';
             document.getElementById('apellidos').value = '';
@@ -897,147 +1037,85 @@
             document.getElementById('area').value = '';
         }
 
-        // Exportar a Excel clasificado por nivel
+        function editarRegistro(id) {
+            const registro = registros.find(r => r.id === id);
+            if (!registro) return;
+            document.getElementById('editId').value = id;
+            document.getElementById('editNombres').value = registro.nombres;
+            document.getElementById('editApellidos').value = registro.apellidos;
+            document.getElementById('editDni').value = registro.dni;
+            document.getElementById('editExpediente').value = registro.expediente === '-' ? '' : registro.expediente;
+            document.getElementById('editTelefono').value = registro.telefono === '-' ? '' : registro.telefono;
+            document.getElementById('editCorreo').value = registro.correo === '-' ? '' : registro.correo;
+            const nivelSelect = document.getElementById('editNivel');
+            const niveles = ['EBR INICIAL', 'EIB INICIAL', 'EBR PRIMARIA', 'EIB PRIMARIA', 'EBR SECUNDARIA', 'EIB SECUNDARIA'];
+            nivelSelect.innerHTML = '<option value="">Seleccione un nivel</option>';
+            niveles.forEach(n => { nivelSelect.innerHTML += `<option value="${n}" ${registro.nivel === n ? 'selected' : ''}>${n}</option>`; });
+            nivelSelect.onchange = function() { handleNivelChange(this.value, true); if (registro.area !== '-' && areasPorNivel[this.value]?.includes(registro.area)) document.getElementById('editArea').value = registro.area; };
+            handleNivelChange(registro.nivel, true);
+            if (registro.area !== '-') document.getElementById('editArea').value = registro.area;
+            document.getElementById('editModal').style.display = 'flex';
+        }
+
+        function saveEdit() {
+            const id = parseInt(document.getElementById('editId').value);
+            const index = registros.findIndex(r => r.id === id);
+            if (index === -1) return;
+            const nuevoNivel = document.getElementById('editNivel').value;
+            const nuevaArea = areasPorNivel[nuevoNivel] ? document.getElementById('editArea').value : '';
+            registros[index] = { ...registros[index], nombres: document.getElementById('editNombres').value.trim(), apellidos: document.getElementById('editApellidos').value.trim(), dni: document.getElementById('editDni').value.trim(), expediente: document.getElementById('editExpediente').value.trim() || '-', telefono: document.getElementById('editTelefono').value.trim() || '-', correo: document.getElementById('editCorreo').value.trim() || '-', nivel: nuevoNivel, area: nuevaArea || '-' };
+            saveData();
+            filterAndRender();
+            closeModal();
+            showNotification('Registro actualizado', 'success');
+        }
+
+        function eliminarRegistro(id) { if (confirm('¿Está seguro de eliminar este registro?')) { registros = registros.filter(r => r.id !== id); saveData(); filterAndRender(); showNotification('Registro eliminado', 'success'); } }
+        
         function exportToExcel() {
-            if (registros.length === 0) {
-                showNotification('No hay datos para exportar', 'error');
-                return;
-            }
-
-            // Agrupar por nivel
-            const niveles = {};
-            registros.forEach(reg => {
-                if (!niveles[reg.nivel]) {
-                    niveles[reg.nivel] = [];
-                }
-                niveles[reg.nivel].push(reg);
-            });
-
-            const workbook = XLSX.utils.book_new();
-            
-            // Crear hoja para cada nivel
-            for (const [nivel, data] of Object.entries(niveles)) {
-                const sheetData = data.map((reg, idx) => ({
-                    '#': idx + 1,
-                    'Nombres': reg.nombres,
-                    'Apellidos': reg.apellidos,
-                    'DNI': reg.dni,
-                    'Expediente': reg.expediente,
-                    'Teléfono': reg.telefono,
-                    'Correo': reg.correo,
-                    'Nivel': reg.nivel,
+            if (registros.length === 0) { showNotification('No hay datos para exportar', 'error'); return; }
+            const niveles = {}; 
+            registros.forEach(reg => { if (!niveles[reg.nivel]) niveles[reg.nivel] = []; niveles[reg.nivel].push(reg); }); 
+            const workbook = XLSX.utils.book_new(); 
+            for (const [nivel, data] of Object.entries(niveles)) { 
+                const sheetData = data.map((reg, idx) => ({ 
+                    '#': idx + 1, 
+                    'Nombres': reg.nombres, 
+                    'Apellidos': reg.apellidos, 
+                    'DNI': reg.dni, 
+                    'Expediente': reg.expediente, 
+                    'Teléfono': reg.telefono, 
+                    'Correo': reg.correo, 
+                    'Nivel': reg.nivel, 
                     'Área': reg.area,
                     'Fecha Registro': new Date(reg.fecha).toLocaleString()
-                }));
-                
-                const ws = XLSX.utils.json_to_sheet(sheetData);
-                XLSX.utils.book_append_sheet(workbook, ws, nivel.substring(0, 31)); // Máximo 31 caracteres
-            }
-            
-            // Hoja de resumen
-            const resumenData = Object.entries(niveles).map(([nivel, data]) => ({
-                'Nivel': nivel,
-                'Cantidad de Estudiantes': data.length
-            }));
+                })); 
+                const ws = XLSX.utils.json_to_sheet(sheetData); 
+                XLSX.utils.book_append_sheet(workbook, ws, nivel.substring(0, 31)); 
+            } 
+            const resumenData = Object.entries(niveles).map(([nivel, data]) => ({ 'Nivel': nivel, 'Cantidad': data.length }));
             const wsResumen = XLSX.utils.json_to_sheet(resumenData);
             XLSX.utils.book_append_sheet(workbook, wsResumen, 'RESUMEN');
-            
-            XLSX.writeFile(workbook, `registros_clasificados_${new Date().toISOString().split('T')[0]}.xlsx`);
-            showNotification('📊 Exportado a Excel clasificado por nivel', 'success');
+            XLSX.writeFile(workbook, `registros_${new Date().toISOString().split('T')[0]}.xlsx`); 
+            showNotification('📊 Exportado a Excel', 'success'); 
         }
+        
+        function exportToPDF() { if (registros.length === 0) { showNotification('No hay datos', 'error'); return; } const element = document.getElementById('dataTable'); html2pdf().set({ margin: 0.5, filename: `registros_${new Date().toISOString().split('T')[0]}.pdf`, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'in', format: 'a4', orientation: 'landscape' } }).from(element).save(); showNotification('📄 Generando PDF...', 'info'); }
+        
+        function printTable() { if (registros.length === 0) { showNotification('No hay datos', 'error'); return; } const printWindow = window.open('', '_blank'); printWindow.document.write(`<html><head><title>Reporte</title><style>body{font-family:Arial;padding:20px}th{background:#667eea;color:white}table{border-collapse:collapse;width:100%}td,th{border:1px solid #ddd;padding:8px}</style></head><body><h1>Registro Educativo</h1>${document.getElementById('dataTable').outerHTML}<p>Total: ${registros.length}</p><p>Fecha: ${new Date().toLocaleString()}</p></body></html>`); printWindow.document.close(); printWindow.print(); }
+        
+        function showNotification(message, type) { const notification = document.createElement('div'); notification.className = 'notification'; const colors = { success: '#48bb78', error: '#f56565', info: '#4299e1' }; notification.style.borderLeftColor = colors[type]; notification.innerHTML = `<i class="fas ${type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle'}"></i> ${message}`; document.body.appendChild(notification); setTimeout(() => notification.remove(), 4000); }
+        
+        function closeModal() { document.getElementById('editModal').style.display = 'none'; }
 
-        // Exportar a PDF
-        function exportToPDF() {
-            if (registros.length === 0) {
-                showNotification('No hay datos para exportar', 'error');
-                return;
-            }
+        // Eventos
+        document.getElementById('nivel').addEventListener('change', function() { handleNivelChange(this.value, false); });
+        document.getElementById('dni').addEventListener('input', function(e) { this.value = this.value.replace(/[^0-9]/g, '').slice(0, 8); });
+        document.getElementById('telefono').addEventListener('input', function(e) { this.value = this.value.replace(/[^0-9]/g, '').slice(0, 9); });
+        document.getElementById('nombres').addEventListener('input', function(e) { this.value = this.value.replace(/[^a-zA-ZáéíóúñÁÉÍÓÚÑ\s]/g, ''); });
+        document.getElementById('apellidos').addEventListener('input', function(e) { this.value = this.value.replace(/[^a-zA-ZáéíóúñÁÉÍÓÚÑ\s]/g, ''); });
+        document.getElementById('themeToggleBtn').addEventListener('click', toggleTheme);
 
-            const element = document.getElementById('dataTable');
-            const opt = {
-                margin: 0.5,
-                filename: `registros_${new Date().toISOString().split('T')[0]}.pdf`,
-                image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { scale: 2 },
-                jsPDF: { unit: 'in', format: 'a4', orientation: 'landscape' }
-            };
-            html2pdf().set(opt).from(element).save();
-            showNotification('📄 Generando PDF...', 'info');
-        }
-
-        // Imprimir tabla
-        function printTable() {
-            if (registros.length === 0) {
-                showNotification('No hay datos para imprimir', 'error');
-                return;
-            }
-
-            const printWindow = window.open('', '_blank');
-            printWindow.document.write(`
-                <html>
-                <head>
-                    <title>Reporte de Registros Educativos</title>
-                    <style>
-                        body { font-family: Arial, sans-serif; padding: 20px; }
-                        h1 { color: #667eea; text-align: center; }
-                        .subtitle { text-align: center; color: #666; margin-bottom: 20px; }
-                        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-                        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
-                        th { background: #667eea; color: white; }
-                        .footer { text-align: center; margin-top: 20px; font-size: 12px; color: #666; }
-                        .page-break { page-break-before: always; }
-                    </style>
-                </head>
-                <body>
-                    <h1>📚 Sistema de Registro Educativo</h1>
-                    <div class="subtitle">Reporte generado: ${new Date().toLocaleString()}</div>
-                    ${document.getElementById('dataTable').outerHTML}
-                    <div class="footer">Total de registros: ${registros.length}</div>
-                </body>
-                </html>
-            `);
-            printWindow.document.close();
-            printWindow.print();
-            showNotification('🖨️ Enviando a impresión...', 'info');
-        }
-
-        // Mostrar notificación
-        function showNotification(message, type) {
-            const notification = document.createElement('div');
-            notification.className = 'notification';
-            const colors = { success: '#48bb78', error: '#f56565', info: '#4299e1' };
-            notification.style.borderLeftColor = colors[type];
-            notification.innerHTML = `<i class="fas ${type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle'}"></i> ${message}`;
-            document.body.appendChild(notification);
-            setTimeout(() => notification.remove(), 3000);
-        }
-
-        function closeModal() {
-            document.getElementById('editModal').style.display = 'none';
-        }
-
-        // Event listeners
-        document.getElementById('nivel').addEventListener('change', function() {
-            handleNivelChange(this.value, false);
-        });
-
-        document.getElementById('dni').addEventListener('input', function(e) {
-            this.value = this.value.replace(/[^0-9]/g, '').slice(0, 8);
-        });
-
-        document.getElementById('telefono').addEventListener('input', function(e) {
-            this.value = this.value.replace(/[^0-9]/g, '').slice(0, 9);
-        });
-
-        document.getElementById('nombres').addEventListener('input', function(e) {
-            this.value = this.value.replace(/[^a-zA-ZáéíóúñÁÉÍÓÚÑ\s]/g, '');
-        });
-
-        document.getElementById('apellidos').addEventListener('input', function(e) {
-            this.value = this.value.replace(/[^a-zA-ZáéíóúñÁÉÍÓÚÑ\s]/g, '');
-        });
-
-        // Inicializar
         loadData();
     </script>
 </body>
